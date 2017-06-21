@@ -3,34 +3,40 @@ package ws;
 import java.util.ArrayList;
 import java.util.List;
 import modelo.Pregunta;
+import modelo.Tema;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class wsPreguntas 
 {
     @RequestMapping(value = "findPreguntas")
-    public static List<Pregunta> findPreguntas()
+    public static List<Pregunta> findPreguntas(@RequestParam(value = "fkTema") int fkTema)
     {
         List<Pregunta> listadoDePreguntas = new ArrayList<Pregunta>();
         
-        String jpql = "SELECT p FROM Pregunta p";
+        String jpql = "SELECT p FROM Pregunta p WHERE p.tema.id = " + fkTema;
         listadoDePreguntas = daos.DAOEclipse.findAllByJPQL(jpql);
         
         return listadoDePreguntas;
     }
     @RequestMapping(value = "addPregunta")
-    public static boolean addPregunta(@RequestParam(value = "pregunta") String strPregunta, @RequestParam(value = "respuesta") String respuesta, @RequestParam(value = "esImagen" ,defaultValue = "false") boolean esImagen)
+    public static boolean addPregunta(@RequestParam(value = "pregunta") String strPregunta, @RequestParam(value = "respuesta") String respuesta, @RequestParam(value = "esImagen" ,defaultValue = "false") boolean esImagen,@RequestParam(value = "fkTema") int fkTema)
     {
         boolean agrego = false;
         
-        Pregunta pregunta = new Pregunta(strPregunta,respuesta,esImagen);
+        Tema temaDB = (Tema) daos.DAOEclipse.get(Tema.class, fkTema);
+        if(temaDB != null)
+        {
+            Pregunta pregunta = new Pregunta(strPregunta,respuesta,esImagen,temaDB);
+            agrego = daos.DAOEclipse.update(pregunta);
+        }
         
-        agrego = daos.DAOEclipse.update(pregunta);
+        
         
         return agrego;
     }
     @RequestMapping(value = "editPregunta")
-    public static boolean editPregunta(@RequestParam(value = "id" , defaultValue = "-1") int id, @RequestParam(value = "pregunta") String strPregunta, @RequestParam(value = "respuesta") String respuesta, @RequestParam(value = "esImagen" ,defaultValue = "false") boolean esImagen)
+    public static boolean editPregunta(@RequestParam(value = "id" , defaultValue = "-1") int id, @RequestParam(value = "pregunta") String strPregunta, @RequestParam(value = "respuesta") String respuesta, @RequestParam(value = "esImagen" ,defaultValue = "false") boolean esImagen,@RequestParam(value = "fkTema") int fkTema)
     {
         boolean edito = false;
         
@@ -43,6 +49,12 @@ public class wsPreguntas
                 preguntaDB.setPregunta(strPregunta);
                 preguntaDB.setRespuesta(respuesta);
                 preguntaDB.setEsImagen(esImagen);
+                
+                Tema temaDB = (Tema) daos.DAOEclipse.get(Tema.class, fkTema);
+                if(temaDB != null)
+                {
+                    preguntaDB.setTema(temaDB);
+                }
                 
                 edito = daos.DAOEclipse.update(preguntaDB);
             }

@@ -1,4 +1,4 @@
 redireccionamiento.jsp:
 <%
-    response.sendRedirect("pages/home/home.jsp");
+    response.sendRedirect("pages/home/elegirMateria.jsp");
 %>

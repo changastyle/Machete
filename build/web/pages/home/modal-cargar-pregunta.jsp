@@ -20,6 +20,11 @@
                     <input type="text" ng-model="preguntaEditando.respuesta" class="form-control" placeholder="Un guacho">
                 </div>
                 <div class="form-group">
+                    <label>Tema</label>
+                    <select ng-model="preguntaEditando.tema" class="form-control" ng-options="tema as tema.nombre for tema in materia.temasList">
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Es Imagen?</label>
                     <input type="checkbox" ng-model="preguntaEditando.esImagen">
                 </div>

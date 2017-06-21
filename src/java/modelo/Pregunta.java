@@ -10,15 +10,21 @@ public class Pregunta
     private String pregunta;
     private String respuesta;
     private boolean esImagen;
+    @OneToOne() @JoinColumn(name = "fkTema")
+    private Tema tema;
 
     public Pregunta() {
     }
 
-    public Pregunta(String pregunta, String respuesta, boolean esImagen) {
+    public Pregunta(String pregunta, String respuesta, boolean esImagen, Tema tema)
+    {
         this.pregunta = pregunta;
         this.respuesta = respuesta;
         this.esImagen = esImagen;
+        this.tema = tema;
     }
+
+   
 
     
     
@@ -55,12 +61,25 @@ public class Pregunta
     public void setEsImagen(boolean esImagen) {
         this.esImagen = esImagen;
     }
+
+    public Tema getTema()
+    {
+        return tema;
+    }
+
+    public void setTema(Tema tema)
+    {
+        this.tema = tema;
+    }
+    
     
 
     //</editor-fold>
-    
+
     @Override
-    public String toString() {
-        return "Pregunta{" + "id=" + id + ", pregunta=" + pregunta + ", respuesta=" + respuesta + '}';
+    public String toString()
+    {
+        return "Pregunta{" + "id=" + id + ", pregunta=" + pregunta + ", respuesta=" + respuesta + ", esImagen=" + esImagen + ", tema=" + tema + '}';
     }
+    
 }

@@ -16,3 +16,31 @@
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet"><!--font-family: 'Source Sans Pro', sans-serif;-->
 <!-- COLORES: -->
 <link rel="stylesheet" href="../res/colores/colores.css">
+<style>
+*
+{
+    font-family: 'Raleway', sans-serif;
+}
+body
+{
+    background-color: #c3c3c3;
+}
+.chip {
+    display: inline-block;
+    padding: 0 25px;
+    height: 35px;
+    font-size: 16px;
+    line-height: 35px;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+    color:black;
+}
+
+.chip img {
+    float: left;
+    margin: 0 10px 0 -25px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+</style>

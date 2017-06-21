@@ -6,14 +6,6 @@
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
         <title>MACHETE</title>
         <style>
-            *
-            {
-                font-family: 'Raleway', sans-serif;
-            }
-            body
-            {
-                background-color: #1abc9c;
-            }
             .head-machete
             {
                 text-align: center;
@@ -39,7 +31,8 @@
                 padding:12px;
                 background-color:#1abc9c;
                 border-radius: 6px;
-                margin-top: 25px;
+                margin-top: 12px;
+                margin-bottom: 12px;
             }
             .question-pregunta
             {
@@ -66,57 +59,72 @@
         
         
         
-        <div class="contenedor-preguntas col-xs-8 col-xs-offset-2">
+        <div class="contenedor-preguntas col-xs-12 col-xs-offset-0 col-md-8 col-md-offset-2">
             
             <h1 class="head-machete col-xs-12">Listado de Preguntas</h1>
             
-            <div class="input-group">
-                <input type="search" class="form-control" placeholder="Buscá tu pregunta rapidamente.." ng-model="busqueda">
-                <span class="input-group-addon" id="basic-addon1" ng-click='limpiarBarraBusqueda()' style='cursor: pointer'>
-                    <span class='glyphicon glyphicon-remove' ></span>
-                </span>
+            <div class="form-group">
+                <label>Seleccionar Tema</label>
+                <select class="form-control" ng-options="tema as tema.nombre for tema in materia.temasList" ng-model="temaSeleccionado" ng-change="cambioComboTemas()">
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Barra busqueda</label>
+                <div class="input-group">
+                    <input type="search" class="form-control" placeholder="Buscá tu pregunta rapidamente.." ng-model="busqueda">
+                    <span class="input-group-addon" id="basic-addon1" ng-click='limpiarBarraBusqueda()' style='cursor: pointer'>
+                        <span class='glyphicon glyphicon-remove' ></span>
+                    </span>
+                </div>
             </div>
             
-            <div class="col-xs-12" style="padding-left: 0px;padding-right: 0px;">
-            <button type="button" class="btn boton-nueva-pregunta" ng-click="openModal()" style="margin-top:25px;">
-                <span class="glyphicon glyphicon-plus"></span>
-                NVA PREGUNTA
-            </button>
-            </div>
+            
+            <%@include file="botonera-preguntas.jsp"  %>
+            
             
             <div class="listado-preguntas col-xs-12">
+                
+                <div class="col-xs-12" ng-show="cargandoPreguntas">
+                    <img src="../res/img/loading.gif" class="img img-responsive center-block">
+                    <h3 class="texto-loading">Cargando Materias..</h3>
+                </div>
+                
                 <div class="item-listado-preguntas col-xs-12" ng-repeat="pregunta in arrPreguntas| filter:busqueda">
                     
-                    <div class="id-pregunta col-xs-1">
+                    <div class="id-pregunta col-md-1 col-xs-12  hidden-xs">
                         <button class="btn btn-default" ng-click='entrarModoEdicion(pregunta)'>
                             {{pregunta.id}}
                         </button>
                     </div>
-                    <div class="question-pregunta col-xs-11">
+                    <div class="question-pregunta col-md-11 col-xs-12">
                         {{pregunta.pregunta}}
                         
-                        <button class='btn btn-danger' style='float:right' ng-click='rmPregunta(pregunta)'>
+                        <br>
+                        <div class="chip">
+                            {{pregunta.tema.nombre}}
+                        </div>
+                        
+                        
+                        <button class='btn btn-danger hidden-xs' style='float:right' ng-click='rmPregunta(pregunta)'>
                             <span class='glyphicon glyphicon-trash'></span>
                         </button>
                     </div>
-                    <div class="answer-pregunta col-xs-11 col-xs-offset-1">
+                    <div class="answer-pregunta col-md-11 col-md-offset-1 col-xs-12">
                         Respuesta:
                         <span ng-hide='pregunta.esImagen'> {{pregunta.respuesta}}</span>
-                        <img ng-src="{{pregunta.respuesta}}" class="img img-responsive" ng-show='pregunta.esImagen' ng-disabled="!pregunta.esImagen"  ng-click="open(pregunta.respuesta)" style="cursor:pointer">
+                        <img ng-if="pregunta.esImagen" ng-src="{{pregunta.respuesta}}" class="img img-responsive" ng-show='pregunta.esImagen' ng-disabled="!(pregunta.esImagen)"  ng-click="open(pregunta.respuesta)" style="cursor:pointer">
                     </div>
                 </div>
             </div>
             
             
-            <button type="button" class="btn boton-nueva-pregunta" ng-click="openModal()" style="margin-top:25px;">
-                <span class="glyphicon glyphicon-plus"></span>
-                NVA PREGUNTA
-            </button>
+            <%@include file="botonera-preguntas.jsp"  %>
 
             
         </div>
         
         <%@include file="modal-cargar-pregunta.jsp" %>
+        <%@include file="modal-add-tema.jsp" %>
         
     </body>
     <script>
@@ -128,9 +136,13 @@
         $scope.arrPreguntas = [];
         $scope.modoEdicion = false;
         $scope.preguntaEditando;
+        $scope.materia = null;
         
         $scope.init = function()
         {
+            $scope.materia = JSON.parse(localStorage.getItem("materia"));
+            console.log("materia: " + JSON.stringify($scope.materia));
+            $scope.temaSeleccionado = $scope.materia.temasList[0];
             $scope.findPreguntas();
         }
         $scope.findPreguntas = function()
@@ -138,9 +150,17 @@
             $.ajax(
             {
                 url:"../../findPreguntas",
+                data: 
+                {
+                    "fkTema":$scope.temaSeleccionado.id
+                },
+                beforeSend: function (xhr) {
+                    $scope.cargandoPreguntas = true;
+                },
                 success: function (resultado, textStatus, jqXHR) 
                 {
                     $scope.arrPreguntas = resultado;
+                    $scope.cargandoPreguntas = false;
                     $scope.$apply();
                 }
             });
@@ -154,6 +174,7 @@
                 {
                     "pregunta":$scope.preguntaEditando.pregunta,
                     "respuesta":$scope.preguntaEditando.respuesta,
+                    "fkTema":$scope.preguntaEditando.tema.id,
                     "esImagen":$scope.preguntaEditando.esImagen
                 },success: function (resultado, textStatus, jqXHR) 
                 {
@@ -176,6 +197,7 @@
                     "id":$scope.preguntaEditando.id,
                     "pregunta":$scope.preguntaEditando.pregunta,
                     "respuesta":$scope.preguntaEditando.respuesta,
+                    "fkTema":$scope.preguntaEditando.tema.id,
                     "esImagen":$scope.preguntaEditando.esImagen
                 },success: function (resultado, textStatus, jqXHR) 
                 {
@@ -213,14 +235,33 @@
         $scope.entrarModoEdicion = function(pregunta)
         {
             $scope.modoEdicion = true;
-             $scope.preguntaEditando = pregunta;
+            $scope.preguntaEditando = pregunta;
+            //$scope.preguntaEditando.tema = pregunta.tema.id;
+            console.log("tema: " +  JSON.stringify(pregunta.tema));
+            
+            for(i = 0 ; i < $scope.materia.temasList.length ;i++)
+            {
+                if($scope.materia.temasList[i].id == pregunta.tema.id)
+                {
+                    console.log("mismo id:" + pregunta.tema.id);
+                    $scope.preguntaEditando.tema = $scope.materia.temasList[i];
+                }
+            }
+            
             $("#myModal").modal();
         }
         $scope.openModal = function()
         {
             $scope.modoEdicion = false;
-            $scope.preguntaEditando = null; 
+            $scope.preguntaEditando = {"nombre":"","respuesta":"","tema":""}; 
+            $scope.preguntaEditando.tema = $scope.materia.temasList[0];
             $("#myModal").modal();
+        }
+        $scope.openModalTema = function()
+        {
+            $scope.modoEdicion = false;
+            $scope.preguntaEditando = null; 
+            $("#modal-temas").modal();
         }
         $scope.salirModoEdicion = function()
         {
@@ -236,6 +277,31 @@
         {
             var win = window.open(url, '_blank');
             win.focus();
+        }
+        $scope.addTema = function()
+        {
+            console.log("add tema: " + JSON.stringify($scope.tema));
+            $.ajax(
+            {
+                url:"../../addTema",
+                data:
+                {
+                    "fkMateria":$scope.materia.id,
+                    "nombre":$scope.tema.nombre
+                },
+                beforeSend: function (xhr) {
+                        
+                },
+                success: function (resultado, textStatus, jqXHR) 
+                {
+                    console.log("resultado add tema: " + resultado)
+                }
+            });
+        }
+        $scope.cambioComboTemas = function()
+        {
+            console.log("cambio combo temas : " + JSON.stringify($scope.temaSeleccionado));
+            $scope.findPreguntas();
         }
     });
     </script>
