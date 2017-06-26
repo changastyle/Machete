@@ -38,5 +38,13 @@ public class Config extends WebMvcConfigurerAdapter
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/pages/res/**").addResourceLocations("/pages/res/*");
+        registry.addResourceHandler("/pages/**").addResourceLocations("/pages/*");
     }
+    @Bean(name = "multipartResolver")
+    public CommonsMultipartResolver createMultipartResolver() {
+        CommonsMultipartResolver resolver=new CommonsMultipartResolver();
+        resolver.setDefaultEncoding("utf-8");
+        return resolver;
+    }
+
 }

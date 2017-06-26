@@ -17,7 +17,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="addTema()">
                     <span class="glyphicon glyphicon-ok"></span>
-                    AGREGAR MATERIA
+                    AGREGAR TEMA
                 </button>
             </div>
         </div>
