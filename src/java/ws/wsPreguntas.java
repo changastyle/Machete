@@ -24,6 +24,9 @@ public class wsPreguntas
     {
         boolean agrego = false;
         
+        strPregunta = Encoding.fix(strPregunta);
+        respuesta = Encoding.fix(respuesta);
+        
         Tema temaDB = (Tema) daos.DAOEclipse.get(Tema.class, fkTema);
         if(temaDB != null)
         {
@@ -39,6 +42,10 @@ public class wsPreguntas
     public static boolean editPregunta(@RequestParam(value = "id" , defaultValue = "-1") int id, @RequestParam(value = "pregunta") String strPregunta, @RequestParam(value = "respuesta") String respuesta, @RequestParam(value = "esImagen" ,defaultValue = "false") boolean esImagen,@RequestParam(value = "fkTema") int fkTema)
     {
         boolean edito = false;
+        
+        
+        strPregunta = Encoding.fix(strPregunta);
+        respuesta = Encoding.fix(respuesta);
         
         if( id != -1)
         {
