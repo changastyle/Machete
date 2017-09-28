@@ -14,12 +14,13 @@
 
 <!-- FONTS:-->
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet"><!--font-family: 'Source Sans Pro', sans-serif;-->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <!-- COLORES: -->
 <link rel="stylesheet" href="../res/colores/colores.css">
 <style>
 *
 {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 body
 {

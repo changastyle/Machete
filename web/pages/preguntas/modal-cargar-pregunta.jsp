@@ -13,7 +13,8 @@
                 
                 <div class="form-group">
                     <label>Pregunta</label>
-                    <input type="text" ng-model="preguntaEditando.pregunta" class="form-control" placeholder="Quien fue Cristobal Colon?">
+                    <textarea ng-model="preguntaEditando.pregunta" class="form-control" placeholder="Quien fue Cristobal Colon?" rows="5" style="resize: vertical">
+                    </textarea>
                 </div>
                 <div class="form-group">
                     <label>Respuesta</label>

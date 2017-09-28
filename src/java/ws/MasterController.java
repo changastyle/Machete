@@ -15,18 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class MasterController
 {
     public final static boolean modoRelease = true;                            //CAMBIAR A TRUE, CUANDO DESPLEGE!!!!!!!!
+    //public final static String nombreCarpetaProyectoXampp = "machete";
     public final static String nombreCarpetaProyectoXampp = "hack/screenshots";
     public final static String rutaCarpetaGuardarWindows = "C:\\xampp\\htdocs\\upload\\" + nombreCarpetaProyectoXampp;
+    public final static String rutaCarpetaGuardarMac = "/Applications/XAMPP/xamppfiles/htdocs/upload/" + nombreCarpetaProyectoXampp;
     public final static String rutaCarpetaGuardarLinux = "/var/www/upload/" + nombreCarpetaProyectoXampp;
     private final static String ipServidorRelease = "http://www.barivende.com:8081";
     private final static String ipServidorTest = "http://localhost";
     public final static String agregado = "/upload/" + nombreCarpetaProyectoXampp + "/";
-    public final static String urlVideoPromocional = "http://barivende.com:8081/upload/barivende/videoPromocional/video-promocional.webm";
-    public final static int minutosLimiteRefrescoNuevoVisitante = 5;
-    public final static int cantidadFotosParaFormulario = 4;
-    public final static String urlFotoDefaultFormulario = "../res/img/upload.png";
-    public final static int permisoUsuarioDefault = 1;
-    public final static int cantidadPublicacionesPasoEnUnScroll = 2;
     
     public static String getIPServidor()
     {
@@ -50,10 +46,15 @@ public class MasterController
         //1.COMPRUEBO EL SISTEMA OPERATIVO DEL SERVIDOR:
         String os = System.getProperty("os.name");
         
+        System.out.println("os: " + os);
         if(os.startsWith("Windows"))
         {
             //2.SI ES WINDOWS - LE DIGO DONDE GUARDAR LA FOTO:
             rutaCarpetaGuardarFotos = rutaCarpetaGuardarWindows;
+        }
+        else if(os.contains("Mac"))
+        {
+            rutaCarpetaGuardarFotos = rutaCarpetaGuardarMac;
         }
         else
         {

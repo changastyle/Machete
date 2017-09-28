@@ -10,6 +10,7 @@ public class Foto implements Comparable<Foto>
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String url;
+    @Temporal( value=TemporalType.TIMESTAMP)
     private Date timestamp;
 
     public Foto()

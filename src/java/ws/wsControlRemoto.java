@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import modelo.Foto;
 import org.springframework.util.FileCopyUtils;
@@ -16,9 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class wsControlRemoto
 {
-    //public static final String ipServerParaWEB = "http://192.168.1.176";
     public static final String ipServerParaWEB = "http://barivende.com:8081";
+    //public static final String ipServerParaWEB = "http://192.168.5.119";
     public static boolean quieroScreenshot = false;
+    public static boolean yaTomeLaFotoPedida = false;
     
     @RequestMapping(value = "reportarme")
     public static boolean reportarme(HttpServletRequest request)
@@ -32,9 +35,23 @@ public class wsControlRemoto
         return quieroFoto;
     }
     @RequestMapping(value = "quieroScreenshot")
-    public static void quieroScreenshot()
-    {
+    public static boolean quieroScreenshot()
+    { 
         quieroScreenshot = true;
+        
+        //MIENTRAS NO TENGA LA FOTO - ESPERO:
+        while(!yaTomeLaFotoPedida)
+        {
+            try
+            {
+                Thread.sleep(500);
+            }
+            catch (InterruptedException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+        return yaTomeLaFotoPedida;
     }
     @RequestMapping(value = "subirFoto")
     public static boolean subirFoto(@RequestParam(value="foto") MultipartFile foto)
@@ -48,6 +65,10 @@ public class wsControlRemoto
         Foto fotoSubida = new Foto(urlFotoSubida, new Date());
         
         subio = daos.DAOEclipse.update(fotoSubida);
+        if(subio)
+        {
+            yaTomeLaFotoPedida = true;
+        }
         
         return subio;
     }
@@ -58,7 +79,11 @@ public class wsControlRemoto
         
         //1.LE PIDO AL SERVIDOR LA CARPETA DONDE GUARDA LAS FOTOS:
         String rutaCarpetaServidorDondeGuardoLasFotos = MasterController.getRutaCarpetaGuardaFotos();
-        String timestamp = "" + System.currentTimeMillis();
+        Date ahora = new Date();
+        String dia = "" + ahora.getDate();
+        String mes = "" + (ahora.getMonth() + 1);
+        String ano = "" + (ahora.getYear() + 1900);
+        String timestamp = "" + ahora.getTime();
         String nombreArchivoSubido;
         String extensionArchivoSubido;
         String nombreUnicoLadoServidor;
@@ -71,24 +96,24 @@ public class wsControlRemoto
             extensionArchivoSubido = nombreArchivoSubido.substring( ultimoPunto , nombreArchivoSubido.length());
             
             //3.LE PONGO UN NOMBRE (UNICO P/GUARDAR EN EL SERVIDOR):
-            nombreUnicoLadoServidor = "upload-" + timestamp + extensionArchivoSubido;
+            nombreUnicoLadoServidor = "up-" + ano + " - " + mes + " - " + dia +" " + timestamp + extensionArchivoSubido;
             
             try 
             {
-                //4.SUBO LA FOTO:
-                File fotoServidor = new File(rutaCarpetaServidorDondeGuardoLasFotos + File.separator + nombreUnicoLadoServidor);
+                //4. COMPRUEBO QUE LA FOTO NO ESTE DUPLICADA:
+                File fotoDuplicada = new File(rutaCarpetaServidorDondeGuardoLasFotos + File.separator + nombreUnicoLadoServidor);
                 
                 //5.COMPRUEBA QUE NO EXISTA FOTO CON EL MISMO NOMBRE:
-                while(fotoServidor.exists())
+                while(fotoDuplicada.exists())
                 {
-                    nombreUnicoLadoServidor = nombreUnicoLadoServidor = "upload-" + timestamp + extensionArchivoSubido;
-                    fotoServidor = new File(rutaCarpetaServidorDondeGuardoLasFotos + File.separator + nombreUnicoLadoServidor);
+                    nombreUnicoLadoServidor = nombreUnicoLadoServidor = "up-" + ano + " - " + mes + " - " + dia +" " + timestamp + extensionArchivoSubido;
+                    fotoDuplicada = new File(rutaCarpetaServidorDondeGuardoLasFotos + File.separator + nombreUnicoLadoServidor);
                 }
                 
                 System.out.println("subiendo foto : " + nombreUnicoLadoServidor + " "  + MasterController.cuantoPesaArchivo(file));
                 
                 //6.CREA UN STREAM CON EL ARCHIVO (AGUJERO) DEL LADO DEL SERVIDOR: Y LA COPIA:
-                BufferedOutputStream streamUpload = new BufferedOutputStream(new FileOutputStream(fotoServidor));
+                BufferedOutputStream streamUpload = new BufferedOutputStream(new FileOutputStream(fotoDuplicada));
                 FileCopyUtils.copy(file.getInputStream(), streamUpload);
                 
                 //5.DEVUELVO LA URL, DONDE FUE SUBIDA LA FOTO:
@@ -105,13 +130,31 @@ public class wsControlRemoto
         return urlFotoSubida;
     }
     
-    @RequestMapping(value = "findUltimasFotos")
-    public static List<Foto> findUltimasFotos()
+    @RequestMapping(value = "findTodasLasFotos")
+    public static List<Foto> findTodasLasFotos()
     {
         List<Foto> listadoUltimasFotos = new ArrayList<Foto>();
         
         listadoUltimasFotos = daos.DAOEclipse.findAllByJPQL("SELECT f FROM Foto f");
         Collections.sort(listadoUltimasFotos);
+        
+        return listadoUltimasFotos;
+    }
+    
+    @RequestMapping(value = "findUltimasFotos")
+    public static List<Foto> findUltimasFotos()
+    {
+        List<Foto> listadoUltimasFotos = new ArrayList<Foto>();
+        
+        List<Foto> listadoAux = findTodasLasFotos();
+        Collections.sort(listadoAux);
+        
+        for(int i = 0 ; i < 20; i++)
+        {
+            listadoUltimasFotos.add(listadoAux.get(i));
+        }
+        
+        
         
         return listadoUltimasFotos;
     }
